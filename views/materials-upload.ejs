@@ -1,0 +1,49 @@
+<div class="materials-display">
+    <div class="dropzone" id="dropzone">Drop Your files here</div><br>
+    <div class="filupopt">
+        <form method="post" action="/upload" enctype="multipart/form-data">
+            <input type="file" id="profile" name="profile" required/><br>
+            <select name="type" required>
+      <option value="books">books</option>
+      <option value="materials">materials</option>
+      <option value="qnpaper">quetionpapers</option>
+    </select><br><br>
+            <select name="cat" required>
+        <option value="cse">Cse</option>
+        <option value="mech">mechanical</option>
+        <option value="ece">ECE</option>
+        <option value="eee">EEE</option>
+      </select>
+            <input class="btn1 btnrt" type="submit" />
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        var dropzone = document.getElementById('dropzone');
+
+        dropzone.ondragover = (e) => {
+            e.preventDefault();
+            dropzone.style.border = " 2px dashed #5680E9";
+
+        }
+
+        dropzone.ondragleave = () => {
+            dropzone.style.border = " 2px dashed black";
+
+        }
+
+        dropzone.ondrop = function(e) {
+
+            e.preventDefault()
+            dropzone.style.backgroundColor = "white";
+            addFilesAndSubmit(event)
+        }
+
+        function addFilesAndSubmit(event) {
+            var files = event.dataTransfer.files;
+            document.getElementById("profile").files = files;
+
+        }
+    });
+</script>

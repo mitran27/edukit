@@ -1,0 +1,146 @@
+<% classes.forEach((x,i)=>{%>
+
+    <div class="singleclassdisp <%=x._id%>" id="<%=i.toString().concat('disp')%>">
+        <center>
+            <h2 style="margin-bottom: 0px;">
+                <%= x.name%>
+            </h2> by
+            <%=x.tutor%><br><br>
+                <center>
+                    <button class="sendmes new">send message</button>
+                    <textarea style="display: none;" sendmessade></textarea>
+                    <button style="display: none; " class="send new ">send</button>
+                    <input type="hidden" value="<%=x._id%>">
+                </center>
+
+                <div class="lesson" style="text-align: center;">
+                    <form method="POST" style="border :0px white;" class="class-work" action="/classwork">
+                        <input type="hidden" value="<%=x._id%>" name="classid">
+                        <button class='btn3'>class work</button>
+                    </form><br>
+                    <%if(user['id']==x.tutorid) {%>
+                        <button class="btn2">create lesson</button>
+
+                        <form method="POST" class="createform" style="display: none; ">
+
+                            <h1 class="a creatlndet">class info</h1>
+                            <h1 class="b creatlndet">content</h1>
+                            <h1 class="c creatlndet">resourses</h1>
+                            <br> <br>
+
+                            <div class="lncreate a1" style="width: 30%;"><input type="text" placeholder="Name" name="lnname" required>
+                                <input type="text" placeholder="hint" name="hint">
+                                <input type="number" placeholder="lesson number" name="lnno" required> </div>
+                            <div class="lncreate a2"> <textarea style="width: 90%; height: 600px;  " name="lesson" required></textarea></div>
+                            <div class="lncreate a3"><textarea style="width: 90%; height: 200px;" name="resourses" required></textarea>
+                                <input type="submit" id="addln" value="add lesson">
+                            </div>
+                        </form><br><br>
+
+                        <% }else{%>
+                            <form method="POST " style="border :0px white; " class="class-work " action="/class/leave ">
+                                <input type="hidden" value="<%=x._id%>" name="class">
+                                <button class='btn3' id="leave">leave class</button>
+                            </form>
+                            <%}%>
+
+
+
+                                <br>
+                                <br>
+
+        </center>
+        <% if(x.lessons){ 
+                x.lessons.forEach(y=>{%>
+            <h2 style="color: red; font-size: 18px; cursor: pointer;">
+                <%=y.lnno%>
+                    <%=  y.title%>
+            </h2>
+            <textarea class="lncontent" style="display: none; height: 400px; width: 100%;"><%=y.lesson%></textarea>
+            <textarea class="lncontent" style="display: none; height: 90px;"><%=y.resourses%></textarea>
+
+            <% })
+                %>
+                <%}%>
+
+
+                    </div>
+                    <%})%>
+                        <style>
+                            textarea {
+                                background-color: white;
+                            }
+                        </style>
+                        <script>
+                            $('.createform').submit(x => {
+                                x.preventDefault();
+
+                                var ln = {
+                                    title: $('[name=lnname]').val(),
+                                    hint: $('[name=hint]').val(),
+                                    lnno: $('[name=lnno]').val(),
+                                    lesson: $('[name=lesson]').val(),
+                                    resourses: $('[name=resourses]').val()
+                                }
+                                console.log(ln, $(x.target).parent().parent())
+                                axios
+                                    .post("/class/createln", {
+                                        lndet: ln,
+                                        classdet: $(x.target).parent().parent().parent().attr('class')
+                                    })
+                                    .then(res => {
+                                        $('[name=lnname]').val('')
+                                        $('[name=hint]').val('')
+                                        $('[name=lnno]').val('')
+                                        $('[name=lesson]').val('')
+                                        $('[name=resourses]').val('')
+                                        $('form').hide()
+
+
+                                    })
+                                    .catch(err => console.error(err));
+
+                            })
+                        </script>
+                        <script>
+                            $('.btn2').click(x => {
+                                $(x.target).next().toggle();
+                                $('.lncreate').hide();
+                                $('.a1').show()
+                            })
+
+                            $('.a').click(() => {
+                                $('.lncreate').hide();
+                                $('.a1').show()
+                            })
+                            $('.b').click(() => {
+                                $('.lncreate').hide();
+                                $('.a2').show()
+                            })
+                            $('.c').click(() => {
+                                $('.lncreate').hide();
+                                $('.a3').show()
+                            })
+                            $('h2').click(x => {
+
+                                $(x.target).next().toggle();
+                                $(x.target).next().next().next().toggle();
+                                $(x.target).next().next().next().next().toggle();
+                            })
+                            $('.sendmes').click((x) => {
+                                $(x.target).next().toggle()
+                                $(x.target).next().next().toggle()
+                            })
+                            $('.send').click((x) => {
+                                axios
+                                    .post("/addclassnoti", {
+                                        class: $(x.target).next().val(),
+                                        mes: $(x.target).prev().val()
+                                    })
+                                    .then(res => {
+                                        alert('message sent')
+                                    })
+                                    .catch(err => console.error(err));
+                            })
+                        </script>
+                        <script src="/socket.io/socket.io.js"></script>

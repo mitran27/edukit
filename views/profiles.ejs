@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('includes')%>
+
+</head>
+
+<style>
+    .follow {
+        color: #3399FF;
+        font-family: "Helvetica";
+        font-size: 10pt;
+        background-color: #ffffff;
+        border: 1px solid;
+        margin-top: 20PX;
+        margin-left: 20px;
+        border-color: #3399FF;
+        border-radius: 5px;
+        width: 85px;
+        height: 30px;
+    }
+    
+    .chatfield1 {
+        text-align: right;
+        height: auto;
+        padding: 3px;
+        margin-top: 5px;
+    }
+    
+    .chatfield2 {
+        text-align: left;
+        height: auto;
+        margin-top: 5px;
+        padding: 3px;
+    }
+    
+    .menu h2 a {
+        color: black;
+        font-size: 25px;
+        margin-top: 0px;
+        padding: 10px 30px;
+        width: auto;
+        float: left;
+        text-decoration: none;
+        white-space: nowrap;
+        justify-content: center;
+        display: block;
+    }
+    
+    .unfollow {
+        color: red;
+        font-family: "Helvetica";
+        font-size: 10pt;
+        margin-top: 20PX;
+        margin-left: 20px;
+        background-color: #ffffff;
+        border: 1px solid;
+        border-color: rgb(6, 55, 104);
+        border-radius: 5px;
+        width: 85px;
+        height: 30px;
+    }
+    
+    .qns {
+        background-color: whitesmoke;
+        margin-top: 10px;
+        height: 7.5vw;
+        width: 40vw;
+        top: 0;
+        border: 2px dashed burlywood;
+    }
+    
+    .qns h4 {
+        font-size: 2.4vw;
+        padding: 5px 5px;
+        width: 40vw;
+        top: 3px;
+        margin-bottom: 0;
+        margin-top: 2px;
+    }
+    
+    .qns h5 {
+        margin-top: 1vw;
+        text-align: right;
+        margin-bottom: 2px;
+    }
+    
+    .qns h5 a {
+        margin-left: 10px
+    }
+    
+    .title {
+        text-align: center;
+        font-size: 30px;
+    }
+    
+    .profile {
+        font-size: 20px;
+        text-align: justify;
+    }
+    
+    .chat-profile {
+        float: left;
+        width: 90%;
+        padding: 10px;
+        height: 100%;
+        max-width: 680px;
+    }
+    
+    #chatfield {
+        margin-top: 5px;
+        width: 90%;
+        height: 365px;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: white;
+        border: 2px solid black;
+    }
+    
+    #send {
+        background-color: DodgerBlue;
+        border: none;
+        color: white;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    #chat-toggle {
+        margin-right: 5px;
+        margin-left: 1100px;
+        color: red;
+        background-color: thistle;
+        font-size: 1.5em;
+        width: 60px;
+    }
+    
+    .msg {
+        width: 80%;
+        float: left;
+    }
+</style>
+
+<body>
+    <%- include('header') %>
+
+        <% if (x[0].pos=='professor'){
+     if(b==0){%>
+            <form action="/profilefollow/<%= x[0].id%>" method="POST">
+                <button class="+ follow">follow  +</button>
+            </form>
+            <%}%>
+                <% if(b==1){
+            
+            %>
+                    <form action="/profileunfollow/<%= x[0].id%>" method="POST">
+                        <button class="x unfollow">unfollow  x</button>
+                    </form>
+
+                    <%}%>
+
+                        <div class="chat-profile" id="profile">
+                            <% x.forEach(blog=>{%>
+                                <a href="/blog/<%= blog.id%>">
+                                    <%=blog.title%>
+                                </a>
+                                <% })%>
+                        </div>
+                        <% } else{ %>
+
+                            <div class="chat-profile" id="profile">
+                                <div class="qnarea">
+                                    student name
+                                    <%= a.name%>
+                                        <% x.forEach (function(x){
+                        
+                        %>
+
+
+                                            <a href="/question/<%= x.qid%>">
+                                                <%= x.question %>
+                                            </a>
+                                            <br>
+
+                                            <%  })%>
+                                </div>
+                            </div>
+
+
+                            <%}%>
+
+                                <div class="chat-profile" id="chat">
+
+                                    <div class="chat-area" style="height: 900px; width: 100%;">
+
+                                        <div style="width: 80%; height: 50%; border:3px solid #5680E9; overflow-y: scroll;" class="chatfield"> </div>
+
+                                        <br>
+                                        <form action="" class="form-container">
+
+                                            <textarea placeholder="Type message.." id="Chat-entry" class="msg" name="msg"></textarea>
+                                            <button type="submit" id="send" class="btn"> Send</button>
+
+                                        </form>
+
+                                    </div>
+
+
+
+                                </div>
+
+
+
+
+</body>
+<script src="/socket.io/socket.io.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    var socket = io();
+    $(function() {
+
+        var start = ['<%= user["id"]%>', '<%= a["id"]%>'];
+        socket.emit('start', start);
+        $('.chatfield').empty();
+        $('.form-container').submit(function(e) {
+
+            e.preventDefault();
+            var message = $('.msg').val();
+            if (message === '' || message === undefined || message === null) {
+                alert('ethavadhu podu daaa');
+            } else {
+
+
+                sendAndUpdateMessages({
+                    fromUserId: '<%= user["id"] %>',
+                    message: (message).trim(),
+                    toUserId: '<%= a["id"]%>',
+                    date: new Date(),
+                    pos: '<%=user["pos"]%>',
+                    name: '<%= user["FirstName"]%>'
+
+                });
+
+            }
+
+            $(".msg").val('');
+        })
+    })
+    sendAndUpdateMessages = (message) => {
+
+        socket.emit('add-message', message);
+    };
+</script>
+<script>
+    socket.on('add-message-response', (data) => {
+        console.log(data)
+        var from = ' <%= user.id%>'
+        var to = '<%= a.id%>'
+        console.log(from, to)
+        if (((data['fromUserId'] == parseInt(from)) && (data['toUserId'] == parseInt(to))) || ((data['fromUserId'] == parseInt(to)) && (data['toUserId'] == parseInt(from)))) {
+            if (data['fromUserId'] == parseInt(from)) {
+                // $('.chatfield').append('you' + '\n')
+                //$('.chatfield').append(data['message'] + '\n');
+                $('.chatfield').append('<div class="chatfield1"> You <br>' + data['message'] + '</div>')
+            }
+            if (data['toUserId'] == parseInt(from)) {
+                //  $('.chatfield').append('<%= a.name%>' + '\n')
+                //$('.chatfield').append(data['message'] + '\n');
+                $('.chatfield').append('<div class="chatfield2">' + ' <%= a.name%> ' + '<br>' + data['message'] + '</div>')
+            }
+        }
+        console.log(((data['fromUserId'] == from) && (data['toUserId'] == to)), ((data['fromUserId'] == to) && (data['toUserId'] == from)))
+        $(".chatfield").stop().animate({
+            scrollTop: $(".chatfield")[0].scrollHeight
+        }, 1000);
+
+    });
+    var isfollow = '<%=b%>'
+    if (isfollow > 0) {
+        $('.chat-area').show();
+    } else {
+        $('.chat-area').hide();
+    }
+</script>
+
+</html>

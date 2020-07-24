@@ -1,0 +1,29 @@
+<html>
+    <title>create profile</title>
+    <style>
+        
+        .profiles{
+            width: 90%;
+            height:45%;
+            border: 3px solid black;
+            margin-top: 80px;
+        }
+        .title{
+            width: 90%;
+            height: 8%;
+        }
+    </style>
+    <body>
+        <form class="profile" method="POST" onsubmit="getaction(this)" >>
+            <input type="test" name="title" class="title"><br><br>
+            <textarea placeholder="enter the content" name="profiles"  class="profiles" ></textarea>
+            <input type="submit" value="submita">
+        </form>
+    </body>
+    <script>
+        function getaction(form){
+            console.log("'"+'<%=t%>'+"'")
+          form.action='<%=t%>'
+        }
+      </script>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+<%- include('includes')%>
+
+    <body>
+        <%- include('header') %>
+
+
+
+
+            <div class="teacherlist">
+                <% results.forEach (function(items){      
+          if((items.id!=user.id)){%>
+                    <div class="teacher">
+                        <a class="teaches" id="<%= items.id%>" href="/profile/<%= items.id%>">
+                            <li><br><img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/professor-6-430019.png" style="width:42px;height:38px; text-align: right;">
+                                <h3>
+                                    <%= items.FirstName%>
+                                </h3>
+                                <h4>
+                                    <%= items.domain%>
+                                </h4>
+                                <h5>
+                                    <%= items.institute%>
+                                </h5>
+                            </li>
+                        </a>
+                    </div>
+                    <% }}); %>
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </body>
+
+</html>

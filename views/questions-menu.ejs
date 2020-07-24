@@ -1,0 +1,57 @@
+<nav class="qnmenu">
+
+    <div class="question">
+        <h3 id="post-btn">post</h3>
+        <h3 id="cse-btn"> cse</h3>
+        <h3 id="mech-btn">mech</h3>
+        <h3 id="ece-btn">ece</h3>
+        <h3 id="eee-btn">eee</h3>
+
+    </div>
+
+    <img src="/logo.png" class="menu-button" alt="HTML tutorial" style=" margin-top:0px;width:42px;height:36px;border:0;">
+
+</nav>
+
+<script>
+    $(document).ready(function() {
+        $("#post-btn").click(function() {
+            $('.qnarea').hide();
+            $('#post').show();
+        });
+        $("#cse-btn").click(function() {
+            $('.qnarea').hide();
+            $('#cse').show();
+        });
+        $("#mech-btn").click(function() {
+            $('.qnarea').hide();
+            $('#mech').show();
+        });
+        $("#ece-btn").click(function() {
+            $('.qnarea').hide();
+            $('#ece').show();
+        });
+        $("#eee-btn").click(function() {
+            $('.qnarea').hide();
+            $('#eee').show();
+        });
+    });
+</script>
+<script>
+    // Demo by http://creative-punch.net
+
+    var items = document.querySelectorAll('.question h3');
+
+    for (var i = 0, l = items.length; i < l; i++) {
+        items[i].style.left = (50 - 35 * Math.cos(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
+
+        items[i].style.top = (50 + 35 * Math.sin(-0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
+
+    }
+
+    document.querySelector('.menu-button').onclick = function(e) {
+        e.preventDefault();
+
+        document.querySelector('.question').classList.toggle('open');
+    }
+</script>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>user</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+        .body-content {
+            width: 50%;
+            background-color: rgba(37, 32, 32, 0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <%if(c==0){
+    
+        %>
+
+        <%}else{%>
+            <div class="warning">
+                <h2 style="color: red;">User aldready Exist </h2>
+            </div>
+
+            <%}%>
+
+                <div class="body-content">
+                    <div class="module">
+                        <h2>CREATE ACCOUNT</h2>
+                        <form class="registerform" action="/register" method="post">
+
+
+                            <input type="text" placeholder=" first name" name="name" required /><br><br>
+                            <input type="text" placeholder=" last name" name="name2" required /><br><br>
+                            <input type="password" placeholder=" password(minimum 6 charecters)" name="pass" minlength="6" required /><br><br>
+                            <input type="date" placeholder="Date of birth" name="dob" required /><br><br>
+                            <input type="email" placeholder="email" name="email" required /><br><br>
+                            <input type="text" placeholder="institution" name="ins" required /><br><br>
+                            <input type="text" placeholder="domain" name="cs" required /><br><br>
+                            <select id="pos" name="pos"><br>
+        <option value="professor">Professor</option>
+        <option value="student">Student</option>
+      </select>
+
+
+                            <center> <button type="submit" class="btn1">Register</button></center>
+
+                        </form><br>
+                        <center> <a href="login"><button class="btn1">Login</button></a></center>
+                    </div>
+                </div>
+</body>
+
+</html>

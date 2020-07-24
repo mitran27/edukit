@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+<%- include('includes')%>
+
+    <body>
+        <%- include('header') %>
+
+
+            <br><br>
+            <table id="notification">
+                <tr>
+                    <th width="10%"> from</th>
+                    <th>message</th>
+                    <th width="5%">time </th>
+                    <th width=5px> <i class="fa fa-trash icon"></i></th>
+                </tr>
+                <%notifi.forEach(not=>{%>
+                    <tr>
+                        <td>
+                            <%if (not.pos=='professor'){%>
+                                <a href="/profile/<%=not.fromUserId%>">
+                                    <%= not.name %>
+                                </a>
+                                <%}else if(not.pos=='class'){%>
+
+                                    <a href="/class">
+                                        <%= not.name %>
+                                    </a>
+                                    <%}else{%>
+                                        <a href="/studprofile/<%=not.fromUserId%>">
+                                            <%= not.name %>
+                                        </a>
+
+                                        <%}%>
+
+
+
+                        </td>
+                        <td>
+                            <%= not.message %>
+                        </td>
+                        <td>
+                            <%= not.date %>
+                        </td>
+                        <td>
+                            <input type="hidden" value="<%=not._id%>">
+                            <i class="fa fa-trash icon"></i>
+                        </td>
+                    </tr>
+                    <% })%>
+
+            </table>
+
+
+
+    </body>
+    <script>
+        $(document).ready(function() {
+            console.log('kk')
+            $('i').click(x => {
+                console.log($(x.target).prev().val())
+                axios
+                    .post("/delnotification", {
+                        id: $(x.target).prev().val()
+                    })
+                    .then(res => {
+
+                        $(x.target).closest("tr").remove();
+                    })
+                    .catch(err => console.error(err));
+
+            })
+        })
+    </script>
+
+</html>

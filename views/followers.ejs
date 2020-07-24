@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%- include('includes')%>
+</head>
+
+<body>
+    <%- include('header') %>
+        <h1>followers are</h1>
+        <div class="teacherlist">
+
+            <% if(follower){follower.forEach (function(items){%>
+
+                <% if(items.pos=='professor'){%>
+                    <div class="teacher">
+                        <a class="teaches" href="/profile/<%= items.id%>">
+                            <li><br><img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/professor-6-430019.png" style="width:42px;height:38px; text-align: right;">
+                                <h3>
+                                    <%= items.FirstName%>
+                                </h3>
+                                <h4>
+                                    <%= items.domain%>
+                                </h4>
+                                <h5>
+                                    <%= items.institute%>
+                                </h5>
+                            </li>
+                        </a>
+                    </div>
+                    <%}else{%>
+                        <div class="teacher">
+                            <a class="teaches" href="/studprofile/<%= items.id%>">
+                                <li><br><img src="https://cdn3.iconfinder.com/data/icons/education-457/64/student_education_man_bachelor_boy_-512.png" style="width:42px;height:38px; text-align: right;">
+                                    <h3>
+                                        <%= items.FirstName%>
+                                    </h3>
+                                    <h4>
+                                        <%= items.domain%>
+                                    </h4>
+                                    <h5>
+                                        <%= items.institute%>
+                                    </h5>
+                                </li>
+                            </a>
+                        </div>
+
+                        <%}%>
+                            <% })}; %>
+        </div>
+
+
+
+        <a href="/dash">home</a>
+
+
+        </div>
+</body>
+
+</html>

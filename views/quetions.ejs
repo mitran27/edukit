@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+<%- include('includes')%>
+
+    <style>
+        .qnarea {
+            display: none;
+        }
+        
+        #quetion {
+            width: 20%;
+            border: 3px solid blue
+        }
+    </style>
+
+    <body>
+        <%- include('header') %>
+            <%- include('questions-menu')%>
+                <h1>
+
+                </h1>
+                <div class="qnarea" id="post">
+
+                    <form method="post" class="postqn" action="/question/post">
+
+                        <input type="text" id="quetion" placeholder="Type your question here..." name="question" required>
+                        <select name="questiontype" required>
+            
+               <option value="cse">cse</option>
+               <option value="ece">ece</option>
+               <option value="mech">mechanical</option>
+               <option value="eee">eee</option>
+           
+           </select>
+                        <br> <br>
+                        <input class="btn1" type="submit">
+                    </form>
+                </div>
+
+
+
+                <div class="qnarea" id="cse">
+                    <h1>cse</h1>
+                    <% question.forEach (function(x){%>
+                        <% if (x.type=='cse'){%>
+                            <div class="qns">
+                                <h4>
+                                    <%= x.question %> ? </h4>
+                                <h5>by
+                                    <%= x.FirstName%>
+                                </h5>
+                                <a href="/question/<%= x.qid%>"> <img src="https://www.situationalcommunication.com/app/uploads/2015/11/The-Answer-698x428-e1445614683535.jpg" style="width:10vw;height:5vw; text-align: right;"></a>
+
+                            </div>
+
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="qnarea" id="ece">
+                    <h1>ece</h1>
+                    <% question.forEach (function(x){%>
+                        <% if (x.type=='ece'){%>
+                            <div class="qns">
+                                <h4>
+                                    <%= x.question %> ? </h4>
+                                <h5>by
+                                    <%= x.FirstName%>
+                                </h5>
+                                <a href="/question/<%= x.qid%>"> <img src="https://www.situationalcommunication.com/app/uploads/2015/11/The-Answer-698x428-e1445614683535.jpg" style="width:10vw;height:5vw; text-align: right;"></a>
+
+                            </div>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="qnarea" id="mech">
+                    <h1>mechanical</h1>
+                    <% question.forEach (function(x){%>
+                        <% if (x.type=='mech'){%>
+                            <div class="qns">
+                                <h4>
+                                    <%= x.question %> ? </h4>
+                                <h5>by
+                                    <%= x.FirstName%>
+                                </h5>
+                                <a href="/question/<%= x.qid%>"> <img src="https://www.situationalcommunication.com/app/uploads/2015/11/The-Answer-698x428-e1445614683535.jpg" style="width:10vw;height:5vw; text-align: right;"></a>
+
+                            </div>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="qnarea" id="eee">
+                    <h1>EEE</h1>
+                    <% question.forEach (function(x){%>
+                        <% if (x.type=='eee'){%>
+                            <div class="qns">
+                                <h4>
+                                    <%= x.question %> ? </h4>
+                                <h5>by
+                                    <%= x.FirstName%>
+                                </h5>
+                            </div>
+                            <a href="/question/<%= x.qid%>"> <img src="https://www.situationalcommunication.com/app/uploads/2015/11/The-Answer-698x428-e1445614683535.jpg" style="width:10vw;height:5vw; text-align: right;"></a>
+
+                            <%}%>
+                                <%  })%>
+                </div>
+                <script>
+                    function getactionpost(form) {
+                        form.action = '/quetion/' + document.getElementById("quetion").value;
+                    }
+                </script>
+    </body>
+
+</html>

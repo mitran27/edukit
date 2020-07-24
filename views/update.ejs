@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+        .body-content {
+            width: 50%;
+            background-color: rgba(37, 32, 32, 0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <div class="body-content">
+        <div class="module">
+            <h2>CREATE ACCOUNT</h2>
+            <form class="registerform" action="/update" method="post">
+
+
+                <input type="text" placeholder=" <%= user.FirstName%>" name="name" required /><br><br>
+                <input type="text" placeholder="  <%= user.LastName%>" name="name2" required /><br><br>
+                <input type="password" placeholder="  <%= user.FirstName%>" name="pass" minlength="6" required /><br><br>
+                <input type="date" placeholder=" <%= user.FirstName%>" name="dob" required /><br><br>
+                <input type="email" placeholder=" <%= user.email%>" name="email" required /><br><br>
+                <input type="text" placeholder=" <%= user.institute%>" name="ins" required /><br><br>
+                <input type="text" placeholder=" <%= user.domain%>" name="cs" required /><br><br>
+                <select id="pos" name="pos"><br>
+        <option value="professor">Professor</option>
+        <option value="student">Student</option>
+      </select>
+
+
+                <button type="submit" class="btn1">Update</button>
+
+            </form><br>
+
+        </div>
+    </div>
+</body>
+
+</html>

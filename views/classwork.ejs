@@ -1,0 +1,531 @@
+<!doctype html>
+<html>
+
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+    <style>
+        video {
+            width: 200px;
+            height: 150px;
+            border: 9px solid black;
+        }
+        
+        .videodisp {
+            height: 400px;
+            float: left;
+            width: 50%;
+        }
+        
+        .addfile {
+            margin-top: 15px;
+            padding: 5px;
+        }
+        
+        .clas {
+            height: 800px;
+            float: left;
+            width: 47%;
+        }
+        
+        .videodisp>* {
+            float: left;
+        }
+        
+        .grpchat {
+            position: fixed;
+            bottom: 43px;
+            right: 48px;
+            width: 250px;
+            height: 400px;
+            background-color: whitesmoke;
+            padding: 5px;
+        }
+        
+        .grpchat textarea {
+            width: 90%;
+            height: 270px;
+        }
+        
+        .grpchat input {
+            width: 70%;
+        }
+        
+        .chat-btn {
+            position: fixed;
+            bottom: 0;
+            right: 15px;
+            border: 3px solid #f1f1f1;
+            z-index: 9;
+        }
+    </style>
+
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script>
+        var CHANNEL = '<%= cla["_id"]%>';
+
+
+
+        var ICE_SERVERS = [{
+            url: 'stun:stun.m.test.com:19000'
+        }];
+    </script>
+
+
+    <script>
+        // our socket.io connection to our webserver 
+        var local_media_stream = null;
+        var peers = {}; // keep track of our rtc connections
+        var peer_media_elements = {}; // keep track of their media connections
+        var file
+
+        function init() { //when body is activated init executes
+
+
+            socket = io();
+
+            socket.on('connect', async function() {
+                console.log("Connected to signaling server");
+
+                await setup_local_media(function() { //get acces and peer them up
+                    console.log('media established')
+                    joingrp(CHANNEL, {
+                        'name': 'mitran'
+                    });
+
+                });
+
+
+                console.log('basic connecetions established')
+            });
+            socket.on('disconnect', function() {
+                console.log("Disconnected from signaling server");
+
+                for (peer_id in peer_media_elements) { //remove all elements
+                    peer_media_elements[peer_id].remove();
+                }
+                for (peer_id in peers) {
+                    peers[peer_id].close();
+                }
+
+                peers = {};
+                peer_media_elements = {};
+            });
+
+            function joingrp(channel, userdata) {
+                console.log('joining in group', channel)
+                socket.emit('join', {
+                    "channel": channel,
+                    "userdata": userdata
+                });
+            }
+
+
+
+
+
+            // * When we join a group, our signaling server will send out 'addPeer' events to each pair* of users in the group 
+
+            socket.on('addPeer', function(config) {
+
+                var peer_id = config.peer_id;
+                if (peer_id in peers) {
+                    // stage 1
+                    console.log("Already connected to peer ", peer_id);
+                    alert("Already connected to peer ", peer_id);
+                    return;
+                }
+
+                var stunturn = {
+                    iceServers: [{
+                        urls: ["stun:stun.l.google.com:19302"]
+                    }]
+                };
+
+
+                var peer_connection = new RTCPeerConnection(stunturn);
+                //stage 2
+                peers[peer_id] = peer_connection; //setting the alloted rtc for the new peer
+                // the handler gets called automatically when a new Ice Candidate is available
+                //if rt offer get connected they start 
+                peer_connection.onicecandidate = function(event) {
+                    console.log(' candidate found')
+                    console.log(new Date().getMilliseconds())
+                    if (event.candidate) {
+                        console.log(' candidate ready')
+                        console.log(new Date().getMilliseconds())
+                        socket.emit('relayICECandidate', { //sending details 
+                            'peer_id': peer_id,
+                            'ice_candidate': {
+                                'sdpMLineIndex': event.candidate.sdpMLineIndex,
+                                'candidate': event.candidate.candidate
+                            }
+                        });
+                        console.log('ice candidate sent')
+                    }
+                }
+                const downloadFile = (blob, fileName) => {
+                    const a = document.createElement('a');
+                    const url = window.URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = fileName;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove()
+                };
+                peer_connection.ondatachannel = function(event) {
+                    var filerecieved = false
+                    const {
+                        channel
+                    } = event;
+                    channel.binaryType = 'arraybuffer';
+
+                    const receivedBuffers = [];
+                    console.log('data channel created')
+                    channel.onmessage = function(event) {
+
+                        const {
+                            data
+                        } = event;
+                        console.log(data)
+
+                        try {
+                            if ((data !== 'EOF') && filerecieved == false) {
+                                receivedBuffers.push(data);
+                            } else if (data == 'EOF') {
+                                filerecieved = true;
+                                console.log('filerecived')
+                            } else {
+                                filename = data;
+                                console.log(filename)
+                                const arrayBuffer = receivedBuffers.reduce((acc, arrayBuffer) => {
+                                    const tmp = new Uint8Array(acc.byteLength + arrayBuffer.byteLength);
+                                    tmp.set(new Uint8Array(acc), 0);
+                                    tmp.set(new Uint8Array(arrayBuffer), acc.byteLength);
+                                    return tmp;
+                                }, new Uint8Array());
+                                const blob = new Blob([arrayBuffer]);
+                                downloadFile(blob, filename);
+                                filerecieved = false
+
+                            }
+                        } catch (err) {
+                            console.log('File transfer failed');
+                            console.log(err)
+                        }
+
+
+                    }
+
+
+                };
+                peer_connection.onaddstream = function(event) { //our onaddstream event is not triggering because your connection is not started yet, you will have to get the offer/answer process done before that event can be triggered. I
+
+                    var remote_media = true ? $("<video>") : $("<audio>");
+                    remote_media.attr("autoplay", "autoplay");
+
+                    remote_media.attr("controls", "");
+                    peer_media_elements[peer_id] = remote_media;
+                    console.log('recieed streaming and attacng')
+
+                    $('.videodisp').append(remote_media);
+                    attachMediaStream(remote_media[0], event.stream);
+                }
+
+
+
+                /* Add our local stream */
+                //stage 
+
+
+                peer_connection.addStream(local_media_stream, () => {
+                    console.log('started streaming')
+                });
+                const filetrans = peer_connection.createDataChannel('test', () => {
+
+                })
+                $('#sharefile').click(async(x) => {
+
+                        if (file) {
+
+                            filetrans.binaryType = 'arraybuffer';
+
+
+                            const arrayBuffer = await file.arrayBuffer();
+                            for (let i = 0; i < arrayBuffer.byteLength; i += 65535) {
+                                filetrans.send(arrayBuffer.slice(i, i + 65535));
+                            }
+                            filetrans.send('EOF');
+                            filetrans.send(file.name);
+                            alert('file sended')
+                            filetrans.onopen = function() {
+
+                            }
+                            filetrans.onclose = function() {
+
+                            }
+
+                        } else {
+                            alert('please put a file')
+                        }
+
+                    })
+                    // Only one side of the peer connection should create the  offer, 
+                    //stage 3
+                if (config.create_offer) {
+                    //Creating RTC offer to current peer_id
+                    peer_connection.createOffer( //function
+                        function(local_description) { //call back
+                            //after creating a offer it callback a loca description
+                            peer_connection.setLocalDescription(local_description, //we will set this as our local decription 
+                                function() {
+                                    console.log('offer created and set')
+                                    socket.emit('relaySessionDescription', { //after ading guest peer id in our array we are ending that peer about the rtc we created for that current peer
+                                        'peer_id': peer_id,
+                                        'session_description': local_description
+                                    });
+
+                                    console.log("Offer is sent");
+                                    console.log(new Date().getMilliseconds())
+                                }
+
+                            );
+
+                        },
+                        function(error) {
+                            console.log("Error sending offer: ", error);
+                        });
+
+                }
+
+            });
+
+            //stage 4
+            // * Peers exchange session descriptions which contains information about their audio / video settings
+            socket.on('sessionDescription', function(config) { //user has sent hist rtc created for u
+
+                var peer_id = config.peer_id; //his id
+                var peer = peers[peer_id]; //we aer having the rtc ceated for him
+                var theirrtcforus = config.session_description;
+
+
+                var desc = new RTCSessionDescription(theirrtcforus); //we have accepted their rtc description
+                console.log('something recieved')
+                console.log(new Date().getMilliseconds())
+                var stuff = peer.setRemoteDescription(desc, //pass the description
+                    function() {
+                        console.log('recieved description is set')
+                        if (theirrtcforus.type == "offer") {
+                            console.log('answer is created')
+                            peer.createAnswer( //we are replying them
+                                function(local_description, err) {
+
+                                    peer.setLocalDescription(local_description,
+                                        function() {
+                                            console.log('answer is set')
+                                            socket.emit('relaySessionDescription', {
+                                                'peer_id': peer_id,
+                                                'session_description': local_description
+                                            });
+                                            console.log("Answer is sent");
+                                            console.log(new Date().getMilliseconds())
+                                        }
+                                    );
+                                },
+                                function() {
+
+                                });
+                        } else {
+                            console.log('description exchange completed')
+                            console.log(new Date().getMilliseconds())
+                        }
+                    }
+                );
+
+
+            });
+
+            //the peer offerinring session description will send ice candidates blob to fine the best path on the internet
+
+            socket.on('iceCandidate', function(config) {
+                var peer = peers[config.peer_id];
+                var ice_candidate = config.ice_candidate;
+                console.log('adding ice canditate')
+                console.log(new Date().getMilliseconds())
+                peer.addIceCandidate(new RTCIceCandidate(ice_candidate));
+                //This adds this new remote candidate to the RTCPeerConnection's remote description, which describes the state of the remote end of the connection.
+                console.log(peer, 'is added')
+            });
+            var cg = '<%=cla["_id"]%>'
+            $('.chat-btn').click(x => {
+                $('.grpchat').toggle();
+
+                socket.emit('joinroom', {
+                    user: '<%=user.id%>',
+                    name: '<%=user.FirstName%>',
+                    room: cg
+                })
+
+            })
+            $('#send').click(x => {
+                console.log($(x.target).parent().siblings('.chattxt'))
+                socket.emit('grpmes', {
+                    mes: $('.chattxt').val(),
+                    room: cg,
+                    by: '<%=user.FirstName%>'
+                })
+                $('.chattxt').val('')
+
+            })
+            socket.on('emitmes', x => {
+                console.log(x)
+
+                $("#" + x.room).append(x.by + '\n' + x.mes + '\n\n')
+
+            })
+            socket.on('emitmesinit', x => {
+
+                $("#" + x.room).append(x.mes + '\n\n')
+
+            })
+            $('#gui').click(x => {
+                socket.emit('getroominfo', {
+                    room: cg
+                })
+            })
+            $('input[type=file]').on('change', function(event) {
+                file = event.target.files[0];
+
+            })
+
+            const shareFile = () => {
+
+            };
+
+
+
+            socket.on('removePeer', function(config) {
+                console.log('Signaling server said to remove peer:', config);
+                var peer_id = config.peer_id;
+                if (peer_id in peer_media_elements) {
+                    peer_media_elements[peer_id].remove();
+                }
+                if (peer_id in peers) {
+                    peers[peer_id].close();
+                }
+
+                delete peers[peer_id];
+                delete peer_media_elements[config.peer_id];
+            });
+        }
+
+
+
+
+
+        async function setup_local_media(callback, errorback) {
+            if (local_media_stream != null) {
+                if (callback) callback();
+                return;
+            }
+
+
+
+
+
+
+            attachMediaStream = function(element, stream) {
+
+                element.srcObject = stream; //attach the videtag with
+            };
+
+
+            if (navigator.mediaDevices.getUserMedia) {
+                constraints = {
+                    audio: {
+                        sampleRate: 1000,
+                        echoCancellation: true,
+
+
+                    },
+                    video: true
+                }
+                stream = await navigator.mediaDevices.getUserMedia(constraints); /* user accepted access to a/v */
+
+                local_media_stream = stream;
+                var local_media = true ? $("<video>") : $("<audio>"); //our local
+                local_media.attr("autoplay", "autoplay");
+                local_media.attr('muted', "");
+
+                local_media.attr("volume", 0); // always mute ourselves by default 
+                local_media.attr("controls", "");
+                $('.videodisp').append('me');
+                // $('.videodisp').append(local_media);
+                // attachMediaStream(local_media[0], stream);
+                $('#localvid')[0].srcObject = stream;
+                console.log('your video is straming')
+                if (callback) callback();
+
+            } else {
+
+                alert("your camera not working.");
+            }
+        }
+    </script>
+    <%- include('includes')%>
+</head>
+
+<body onload='init()'>
+    <%- include('header') %>
+
+        <div class="videodisp clas">
+
+            <video id="localvid" width="640px" height="350px" autoplay="autoplay" controls="controls" muted="muted">
+               
+            </video>
+        </div>
+        <div class="chat-pos">
+
+
+            <div class="clas">
+                <div class="addfile" style=" width:60%; border: 1px solid #5680E9;">
+                    <input type="file"><br>
+                    <input id="sharefile" class="btn1" type="submit">
+                </div>
+                <% if(cla.lessons){ 
+        cla.lessons.forEach(y=>{%>
+                    <h2 style="color: red; font-size: 18px;">
+                        <%=y.lnno%>
+                            <%=  y.title%>
+                    </h2>
+                    <textarea class="lncontent" style="display: none; height: 400px; width: 100%;"><%=y.lesson%></textarea>
+                    <textarea class="lncontent" style="display: none; height: 90px;"><%=y.resourses%></textarea>
+
+                    <% })
+        %>
+                        <%}%>
+            </div>
+
+            <div class="grpchat " style="display: none;">
+                <br>
+                <textarea id="<%= cla['_id']%>" class="chatfield" style="   border: 2px solid #5680E9;" readonly></textarea>
+                <input type="text" class="chattxt">
+                <button id="send" style="width: 40px;"><img src="https://image.shutterstock.com/image-vector/send-message-icon-share-sign-260nw-1238364121.jpg" style="height: 20px; width: 18px;"></button>
+                <h4 style="margin-top: 0px;" id="gui">get participants</h4>
+                <br>
+
+            </div>
+
+            <img src="https://www.jomsocial.com/components/com_mtree/img/listings/o/2746.png" class="chat-btn" style="width: 90px; height: 90px ; border-radius: 39%;">
+        </div>
+</body>
+<script>
+    $('h2').click(x => {
+        $(x.target).next().toggle();
+        $(x.target).next().next().toggle();
+
+    })
+</script>
+
+</html>

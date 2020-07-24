@@ -1,0 +1,60 @@
+<div class="material-menu">
+    <div class="filecatageory " id="upload-opt ">
+        <h1> upload</h1>
+        <img src="http://www.pngall.com/wp-content/uploads/2/Upload-PNG-Images.png">
+
+    </div><br><br>
+    <div class="filecatageory " id="cse-opt ">
+        <h1> CSE</h1>
+        <img src="http://www.pngall.com/wp-content/uploads/5/Computer-Screen-PNG-Download-Image.png ">
+
+    </div><br><br>
+
+    <div class="filecatageory " id="mech-opt ">
+        <h1> MECH</h1>
+        <img src="https://cdn3.iconfinder.com/data/icons/objects/512/Mechanical-512.png ">
+
+    </div><br><br>
+
+    <div class="filecatageory " id="ece-opt ">
+        <h1> ECE</h1>
+        <img src="https://assets.dryicons.com/uploads/icon/svg/6372/1bad6980-cfa1-4c28-9ece-b7a23b7717d8.svg ">
+
+    </div><br><br>
+    <div class="filecatageory " id="eee-opt ">
+        <h1> EEE</h1>
+        <img src="https://www.flaticon.com/premium-icon/icons/svg/675/675795.svg ">
+
+    </div><br><br>
+
+</div>
+
+
+
+
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+
+<script>
+    $(document).ready(function() {
+        $("#search ").keyup(function() {
+            var x = '/search/' + $('#search').val()
+            $('#searchedfiles').empty();
+            if ($('#search').val().length > 3) {
+                axios.post(x).then(response => {
+                    for (i = 0; i < response.data.length; i++) {
+                        var files = '<a href="/download/ ' + response.data[i].id + ' "target="_blank " rel="noopener noreferrer "><h3>' + response.data[i].title + '</h3></a>'
+                        console.log(files)
+                        $('#searchedfiles').append(files);
+                        $('.material-display ').hide();
+                        $('#searchedfiles').show();
+
+
+                    }
+                }).catch(() => {
+
+                })
+            }
+
+        });
+    });
+</script>

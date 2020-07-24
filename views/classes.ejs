@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        .lesson {
+            width: 100%;
+            height: auto;
+        }
+        
+        .creatlndet {
+            float: left;
+            padding: 5px;
+            width: auto;
+            margin-left: 5px;
+            border: black;
+            color: #5680E9;
+        }
+        
+        .creatlndet:hover {
+            float: left;
+            background-color: #5680E9;
+            color: white;
+            padding: 5px;
+            width: auto;
+            margin-left: 5px;
+        }
+        
+        .searched {
+            color: #5680E9;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<%- include('includes')%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <body>
+        <%- include('header') %>
+            <div class="class">
+
+                <% if (user['pos']=='professor'){%> <button class="btn1">class  +</button><br>
+                    <%}%>
+
+                        <div class="classes" id="classlist">
+
+                            <div class="searchbar" style="border: 2px solid #5680E9; padding: 5px;">
+                                <i class="fa fa-search icon"></i>
+                                <input type="text" id="search" autocomplete="off " placeholder="Search... "> <br>
+                            </div><br><br>
+                            <div class="searchclass "></div>
+                            <% classes.forEach((x,i)=>{%>
+                                <div class="singleclass " id="<%=i%>">
+
+
+                                    <h2 style="margin-top: 5px;">
+                                        <%=x.name %>
+                                    </h2>
+                                    <br>
+
+
+                                    <h5>
+                                        tutor:
+                                        <%= x.tutor%>
+                                    </h5>
+
+                                    <h5 style="overflow-wrap: break-word;">
+                                        description :
+                                        <%= x.notes%>
+                                    </h5>
+                                    <h5>
+                                        institute :
+                                        <%= x.institute%>
+                                    </h5>
+
+                                </div>
+
+
+                                <%})%>
+                        </div>
+                        <div class="classes" id="classdisp">
+
+                            <%- include('insideclass')%>
+                                <div class="searchedclass"></div>
+
+                        </div>
+            </div>
+            <div id="myModal" class="modal">
+
+                <!-- Modal content -->
+                <div class="modal-content">
+
+                    <div class="class-form">
+                        <h2>Create class <span class="close">&times;</span></h2>
+                        <form method="POST" action="/createclass">
+                            <input type="text" name="class_name" placeholder="Class Name" /><br><br>
+                            <input type="number" name="nos" placeholder="number of students" /><br><br>
+                            <textarea name="hint" placeholder="description" onkeyup="adjust_textarea(this)"></textarea><br>
+                            <select name="type" required>
+                        <option value="in">IN</option>
+                        <option value="all">ALL</option>
+                        
+                      </select><br><br>
+                            <center> <input type="submit" class="btn1" value="create"></center>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+    </body>
+    <script>
+        function htmlDecode(input) {
+            var e = document.createElement('div');
+            e.innerHTML = input;
+            return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+        }
+        var newarray = []
+        newarray = JSON.parse(htmlDecode('<%= JSON.stringify(cureclasses) %>'));
+        var studeid = '<%= user["id"]%>';
+        var studname = '<%= user["FirstName"]%>';
+        var usersinstitute = '<%= user["institute"]%>';
+        $(document).ready(function() {
+
+            $('.close').click(x => {
+                $('#myModal').hide();
+            })
+
+            $('.btn1').click(x => {
+                $('#myModal').show();
+            })
+            $('.singleclass').click((x) => {
+                $('.singleclassdisp').hide()
+                $('.searchedclass').hide()
+
+                if ($(x.target).attr('id') == undefined) {
+                    y = $(x.target).parent()
+                } else {
+                    y = $(x.target)
+                }
+                console.log(y)
+                $('#' + y.attr('id').toString() + 'disp').show();
+                $('.createform').hide()
+            })
+            var searchclass = {}
+
+
+
+
+
+        })
+    </script>
+    <script src="/searchclass.js"></script>
+
+
+</html>

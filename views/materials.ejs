@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+<%- include('includes')%>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <body>
+        <%- include('header') %>
+            <%- include('materials-menu') %>
+                <br>
+                <div class="searcharea">
+                    <div class="searchbar" style="border: 2px solid #5680E9; padding: 5px;">
+                        <i class="fa fa-search icon"></i>
+                        <input type="text" id="search" autocomplete="off" placeholder="search"> <br>
+                    </div>
+
+                    <input type="text" class="material-display" id="searched">
+
+
+                </div><br> <br><br><br>
+                <div class="material-display" id="searchedfiles">files searched</div>
+
+
+                <div class="material-display" id='upload'>
+                    <%- include('materials-upload')%>
+                </div>
+                <div class="material-display" id='cse'>
+                    <% materials.forEach (function(x){%>
+                        <% if (x.category=='cse'){%>
+                            <a href="/download/<%= x.id%>" target="_blank" rel="noopener noreferrer">
+                                <h3>
+                                    <%= x.title%>
+                                </h3>
+                            </a>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="material-display" id='mech'>
+                    <% materials.forEach (function(x){%>
+                        <% if (x.category=='mech'){%>
+                            <a href="/download/<%= x.id%>" target="_blank" rel="noopener noreferrer">
+                                <h3>
+                                    <%= x.title%>
+                                </h3>
+                            </a>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="material-display" id='ece'>
+                    <% materials.forEach (function(x){%>
+                        <% if (x.category=='ece'){%>
+                            <a href="/download/<%= x.id%>" target="_blank" rel="noopener noreferrer">
+                                <h3>
+                                    <%= x.title%>
+                                </h3>
+                            </a>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <div class="material-display" id='eee'>
+                    <% materials.forEach (function(x){%>
+                        <% if (x.category=='eee'){%>
+                            <a href="/download/<%= x.id%>" target="_blank" rel="noopener noreferrer">
+                                <h3>
+                                    <%= x.title%>
+                                </h3>
+                            </a>
+                            <%}%>
+                                <%  })%>
+                </div>
+                <script>
+                    $(document).ready(function() {
+                        console.log('asd')
+                        $(".filecatageory").click(function(x) {
+                            console.log('clcked')
+                            if ($(x.target).attr('id')) {
+                                y = $(x.target).attr('id')
+                            } else {
+                                y = $(x.target).parent().attr('id')
+                            }
+
+                            str = y.substring(0, y.length - 5);
+
+                            console.log(str)
+                            $('.material-display').hide();
+                            $("#" + str).show();
+                        });
+
+
+                    });
+                </script>
+    </body>
+
+</html>

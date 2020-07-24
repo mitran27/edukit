@@ -1,0 +1,263 @@
+<html>
+
+<head>
+    <title></title>
+    <%- include('includes')%>
+        <style>
+            .blogarea,
+            .commentlist {
+                margin-top: 20px;
+                width: 80%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .commentlist {
+                margin: auto;
+            }
+            
+            .blogarea img {
+                border: 1px solid black;
+                transition: all 1s;
+            }
+            
+            .blogarea img:hover {
+                border: 1px solid blue;
+                box-shadow: 3px 3px 2px grey;
+            }
+            
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .replyregion {
+                display: none;
+            }
+            
+            .menu h2 a {
+                color: black;
+                font-size: 25px;
+                margin-top: 0px;
+                padding: 10px 30px;
+                width: auto;
+                float: left;
+                text-decoration: none;
+                white-space: nowrap;
+                justify-content: center;
+                display: block;
+            }
+            
+            #comment {
+                height: 120px;
+                width: 100%;
+                border: 1px solid black;
+                font-size: 25px;
+            }
+            
+            #comment:focus {
+                height: 120px;
+                width: 100%;
+                border: 1px solid#5680E9;
+                font-size: 25px;
+            }
+            
+            .question h1 {
+                width: 340px;
+                color: #5680E9;
+                font-family: Arial, Helvetica, sans-serif Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            }
+            
+            .comment {
+                width: 97%;
+                padding: 5px;
+                background-color: whitesmoke;
+                border: 1px solid black;
+            }
+            
+            .comment:hover {
+                width: 97%;
+                padding: 5px;
+                background-color: whitesmoke;
+                border: 1.5px solid #5680E9;
+            }
+            
+            .reply,
+            .comment-btn {
+                border: .5px solid black;
+                border-radius: 5px;
+                background-color: white;
+                text-align: center;
+                font-size: 17px;
+                padding: 2.5px;
+                color: #5680E9;
+                width: 65px;
+            }
+            
+            .reply:hover,
+            .comment-btn:hover {
+                border: .5px solid black;
+                border-radius: 5px;
+                background-color: #5680E9;
+                font-size: 17px;
+                padding: 2.5px;
+                color: white;
+                width: 65px;
+            }
+            
+            h3 {
+                margin-top: 4vw;
+            }
+            
+            .replyregion {
+                width: 60%;
+                height: auto;
+                border: 3px dashed black;
+                margin: auto;
+                padding: 10px;
+            }
+        </style>
+
+</head>
+<%- include('header') %>
+
+
+    <div class="blogarea">
+
+        <%blog.blog.forEach(bl=>{
+            if(bl.type=='text'){%>
+
+            <textarea style="height:<%=bl.height%>px; width:100%"><%= bl.text%> </textarea>
+
+
+            <%}
+            if(bl.type=='img'){%>
+
+                <img src=" <%=bl.imgsrc %> " height=" <%= bl.height%>" width=" <%= bl.width%>%">
+
+                <%}
+            if(bl.type=='title'){%>
+
+                    <h1 style="font-size: <%= bl.size%>px;color:<%= bl.color%>">
+                        <%= bl.title%>
+                    </h1>
+
+
+                    <%}%>
+                        <br>
+                        <%  })%>
+    </div><br><br>
+    <form class="commentform">
+        <input name="post" style="margin: auto;" type="text" id="comment" placeholder="add comment">
+        <br><br>
+        <input class="btn1" type="submit">
+    </form>
+    <div class="commentlist">
+        <% if(blog.commentslist!=null){
+           
+            blog.commentslist.reverse().forEach((x)=>{%>
+
+            <div id="<%=x._id%>" class="comment" ">
+                <h3 style="margin-top: 0; margin-bottom: 2px; ">
+                    <%=x.comment%>
+                </h3> by
+                <%=x.commentedby%>
+                    <h3 class="reply " style="margin-top: 20px; margin-bottom: 0px; ">Reply</h3>
+                    <div class="replyregion ">
+                        <% if(x.replies) { x.replies.forEach((y)=>{%>
+                            <%= y %><br>
+                                <%})}%>
+                                    <form class="replyarea ">
+                                        <input type=text class="replytext ">
+                                     
+                                       <button type="submit " class="btn1 ">Reply</button>
+                                    </form>
+                    </div>
+            </div>
+            <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <%  })
+        }%>
+    </div>
+    </body>
+
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js "></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+
+    <script>
+        $(document).ready(() => {
+
+            var blog = '<%=blog.blog%>'.split(',')
+
+
+
+
+
+
+
+            $('.commentform').submit((x) => {
+                x.preventDefault();
+                axios.post('/postcomment', {
+                    id: '<%= blog._id%>',
+                    comment: $('#comment').val()
+
+                }).then((res) => {
+                    $('#qn').val('');
+                    var x = res.data.newcomment
+                    $('.commentlist').append('<div id=" ' + x._id + ' ">' + x.comment + ' <h3 class="reply ">reply</h3> <div class="replyarea " style="display:none; "> <input type=text><input type="submit "></div></div>')
+                    console.log(x);
+
+                }).catch()
+            })
+
+
+
+            $('.reply').click((x) => {
+                var t = x.target
+                $(t).next().toggle();
+
+
+            })
+            $('.replyarea').submit((x) => {
+                x.preventDefault();
+                var t = x.target
+              
+                axios.post('/postbreply', {
+                    id: '<%= blog._id%>',
+                    idrep: $(t).parent().parent().attr('id'),
+                    reply: $(t).children('.replytext').val()
+
+                }).then(res => {
+                    $(t).children('.replytext').val('');
+                    $(t).parent().append(res.data + '<br>')
+                }).catch()
+
+
+
+            })
+
+
+        })
+    </script>

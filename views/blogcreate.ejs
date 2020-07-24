@@ -1,0 +1,210 @@
+<html>
+
+<head>
+    <title></title>
+    <%- include('includes')%>
+        <style>
+            textarea {
+                height: 200px;
+                width: 90%;
+            }
+            
+            .creation>input {
+                width: 130px;
+                ;
+            }
+        </style>
+
+</head>
+<%- include('header') %>
+    <div class=" blogarea">
+
+    </div>
+    <div class="creationform">
+        <form>
+
+            <div class="creation" id="text">
+                text:<textarea id="texta"></textarea>
+                <input type="number" id="height" placeholder="height">
+            </div>
+            <div class="creation" id="img">image
+                <input id="imga" type="text" req>
+                <input type="number" id="heightimg" placeholder="height">
+                <input type="number" id="width" placeholder="width">
+                <input type="file" id="fileupload">
+            </div>
+            <div class="creation" id="title">title:<input id="titlea" type="text" style="width: 400px;">
+                <input type="number" id="size" placeholder="size">
+                <input type="text" id="color" placeholder="color">
+            </div>
+            <center>
+                <h2 class="remove"> <img src="https://cdn4.iconfinder.com/data/icons/controls-add-on-flat/48/Contols_-_Add_On-35-512.png" style="width:42px;height:38px; text-align: right;"></h2>
+                <h5 class="btn2" id="addelem">add</h5>
+            </center>
+
+        </form>
+    </div>
+
+    <div class="blogform">
+
+
+        <h4 id="addtext">ADD TEXT</h4>
+
+        <h4 id="addimg">ADD IMAGE</h4>
+
+        <h4 id="addtitle">ADD TITLE</h4><br>
+        <form id="submit">
+            <input type="text" id="gt" placeholder=" GRAND TITLE" required>
+
+            <input class="btn2" type="submit">
+        </form>
+
+    </div>
+
+
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            var blog = new Array();
+            var ca
+            $('input[type=file]').on('change', function() {
+                var $files = $(this).get(0).files;
+                const file = this.files[0];
+                const fileType = file['type'];
+
+                var validImageTypes = ["image/gif", "image/jpeg", "image/png"];
+                if (!validImageTypes.includes(fileType)) {
+                    alert('img')
+                } else {
+                    if ($files.length) {
+                        // Reject big files
+                        if ($files[0].size > $(this).data('max-size') * 1024) {
+                            console.log('Please select a smaller file');
+                            return false;
+                        }
+
+                        // Begin file upload
+                        console.log('Uploading file to Imgur..');
+
+                        // Replace ctrlq with your own API key
+                        var apiUrl = 'https://api.imgur.com/3/image';
+                        var apiKey = 'ctrlq';
+
+                        var settings = {
+                            async: false,
+                            crossDomain: true,
+                            processData: false,
+                            contentType: false,
+                            type: 'POST',
+                            url: apiUrl,
+                            headers: {
+                                Authorization: 'Client-ID 78d4378deda6ce5',
+                                Accept: 'application/json',
+                            },
+                            mimeType: 'multipart/form-data',
+                        };
+
+                        var formData = new FormData();
+                        formData.append('image', $files[0]);
+                        settings.data = formData;
+
+                        // Response contains stringified JSON
+                        // Image URL available at response.data.link
+                        $.ajax(settings).done(function(response) {
+
+                            console.log(JSON.parse(response).data);
+                            $('#imga').val(JSON.parse(response).data.link)
+                        });
+                    }
+                }
+            });
+            $('h4').click((x) => {
+
+                var c = $(x.target).attr('id')
+                $('.creation').hide();
+                if (c == 'addtext') {
+                    $('#text').show();
+                    ca = '#texta'
+                }
+                if (c == 'addimg') {
+                    $('#img').show();
+                    ca = '#imga'
+                }
+                if (c == 'addtitle') {
+                    $('#title').show();
+                    ca = '#titlea'
+                }
+
+            })
+            $('#addelem').click((x) => {
+
+                var blogdiv;
+
+                if (ca == '#texta') {
+                    console.log($(ca).val())
+
+                    app = '<div><center><textarea style="height:' + $('#height').val() + 'px;width:"90%">' + $(ca).val() + '</textarea></center></div>'
+                    console.log(app)
+                    $('.blogarea').append(app)
+                    blogdiv = {
+                        type: "text",
+                        text: $(ca).val(),
+                        height: $('#height').val()
+                    }
+                }
+                if (ca == '#imga') {
+                    var img = $(ca).val()
+
+                    app = '<div><center><img src="' + img + ' "height="' + $('#heightimg').val() + '" width="' + $('#width').val() + '%"></center></div>'
+                    $('.blogarea').append(app)
+                    blogdiv = {
+                        type: "img",
+                        imgsrc: img,
+                        height: $('#heightimg').val(),
+                        width: $('#width').val()
+                    }
+                }
+                if (ca == '#titlea') {
+
+                    app = '<div><center><h1 style="font-size: ' + $('#size').val() + 'px;color:' + $('#color').val() + '">' + $(ca).val() + '</h1></center></div>'
+                    $('.blogarea').append(app)
+                    blogdiv = {
+                        type: "title",
+                        title: $(ca).val(),
+                        size: $('#size').val(),
+                        color: $('#color').val()
+                    }
+
+                }
+                blog.push(blogdiv)
+                console.log(blog)
+
+                $(ca).val('')
+            })
+            $('h2').click((x) => {
+                blog.pop()
+                $('.blogarea').children().last().remove()
+            })
+            $('#submit').submit((x) => {
+                x.preventDefault()
+                axios.post('/postblog', {
+                    title: $('#gt').val(),
+                    blog: blog,
+
+
+                }).then(res => {
+                    alert('blog posted');
+                    $('.blogarea').remove()
+
+                }).catch()
+
+            })
+
+        })
+    </script>
+
+</html>
+
+</html>

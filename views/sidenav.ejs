@@ -1,0 +1,91 @@
+<div class="toggle-bt">
+    <button class="toggle"><img src="https://cdn5.vectorstock.com/i/1000x1000/19/84/settings-icon-vector-801984.jpg" style="width:32px;height:28px;border:0;"></button>
+</div>
+<div class="sidebar">
+
+    <ul style="list-style-type:none;" style="overflow-y: scroll;">
+        <button class="toggle"><img src="https://cdn5.vectorstock.com/i/1000x1000/19/84/settings-icon-vector-801984.jpg" style="width:32px;height:28px;border:0;"></button>
+        <% if(user.pos=='student'){%>
+            <li><img src="https://cdn3.iconfinder.com/data/icons/education-457/64/student_education_man_bachelor_boy_-512.png" style="width:32px;height:28px;border:0;">student</li>
+            <%}%>
+                <% if(user.pos=='professor'){%>
+                    <li><img src="https://www.iconbunny.com/icons/media/catalog/product/cache/2/thumbnail/600x/1b89f2fc96fc819c2a7e15c7e545e8a9/1/2/120.5-teacher-i-icon-iconbunny.jpg" style="width:32px;height:28px;border:0;">professor</li>
+                    <%}%>
+                        <li class='myquestion-btn'>
+                            <h2>My Question</h2>
+                        </li>
+                        <%if(myquestion){%>
+                            <div class="details" id="myquestions">
+                                <% myquestion.forEach (function(x){%>
+                                    <li>
+                                        <a href="/question/<%= x.id%>" style="font-size: 15px; margin: 0px; line-height: 18pt; padding: 5px 5px;">
+                                            <%= x.question %>
+                                        </a>
+                                    </li>
+                                    <br>
+                                    <%  })%>
+                                        <hr>
+                            </div>
+                            <%}%>
+                                <li class='following-btn'>
+                                    <h2>Following</h2>
+                                </li>
+
+                                <div class="details" id="following">
+                                    <% following.forEach (function(x){%>
+                                        <li>
+                                            <a href="/profile/<%= x.leader%>" style="font-size: 15px; margin: 0px; line-height: 18pt; padding: 5px 5px;" ">
+                                                <%= x.leadername %>
+                                            </a>
+                                        </li>
+                                        <%})%>
+                                            <hr>
+                                </div>
+
+                                <li>
+                                    <a href="/notifications ">Notifications</a> <br>
+
+                                </li>
+
+
+                                <li>
+                                    <a href="/createblog ">Create Blog</a>
+                                </li>
+
+
+
+
+
+                                <li><a href="/followers "> Followers</a></li>
+                                <li><a href="/update "> Update</a></li>
+
+
+                                <li>
+                                    <a href="/logout ">Logout</a>
+                                </li>
+
+
+</div>
+</ul>
+
+</div>
+<script>
+    $(document).ready(function() {
+        $(".toggle ").click(function() {
+            $(".toggle-bt ").slideToggle();
+            $(".sidebar ").slideToggle();
+        });
+
+        $(".myquestion-btn ").click(function() {
+
+            $('#myquestions').toggle();
+            console.log('clicked')
+
+        })
+        $(".following-btn ").click(function() {
+
+            $('#following').toggle();
+
+        })
+    });
+</script>
