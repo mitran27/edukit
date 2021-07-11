@@ -2,4 +2,4 @@
 e-library, discussion forum,personal chat,blog,virtual classroom all in one place 
 a new system of education
 
-https://eukitpsg.herokuapp.com/
+https://edukit.herokuapp.com/
