@@ -12,6 +12,10 @@ A blog application where use can publish his blog where blog can contain headlin
 in which other users can comment the blog ,entire module is powered by Mongodb as database
 
 <h2>class</h2>
+An application similar to google classroom where teacher can create their own class ,post lessons ,create notification and students can join interested teachers class
 <h2>classroom</h2>
+A video service application devoloped with Webrtc to make virtual classroom along with group chat , filetransfers and display of lesson's created
+
+
 
 
